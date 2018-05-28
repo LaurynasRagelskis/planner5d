@@ -1,51 +1,51 @@
 <?php
 
 namespace app\models;
-use app\models\Wall;
+use app\models\Floor;
 
 class Plan extends \yii\base\BaseObject
 {
-    //data
+    public $data;
+
     public $width;
     public $height;
     public $currentFloor;
+    public $color = 'silver';
 
-    public $data;
-
-    public $canvasSize = [];
+    public $canvasSize = [1000, 1000];
 
     public $canvasX = 0;
     public $canvasY = 0;
-    public $canvasXdelta = 0;
-    public $canvasYdelta = 0;
+    public $canvasXdelta = 1000;
+    public $canvasYdelta = 1000;
 
-    public $xOffset = 0;
-    public $yOffset = 0;
-
-    //data->items[0..n]
+    public $xOffset = 10;
+    public $yOffset = 10;
 
     public $floors = []; //issiparsinti visus items if item->className == 'Floor'
 
-    public $rooms = []; //issiparsinti visus items if floor->items->className == 'Room'
-
-    public $walls = []; //issiparsinti visus items if room->items->className == 'Wall'
-
     //wall { w, points [x,y] }
-
     public function __construct(array $config = [])
     {
         parent::__construct($config);
         $data = $config['data'];
         foreach ($data->items as $key => $item) {
             if ($item->className == 'Floor'){
-                $this->floors[] = ['id' => $key, 'name' => $item->name, 'height' => $item->h ];
-                $this->parseFloorWalls($item, $key);
+                $this->addFloor($key, $item);
             }
         }
         $this->currentFloor = $data->currentFloor; //$this->floors[0];
-        $this->checkCanvasSize();
-        $this->checkOffset();
+        //$this->color = $data->items;
+        //$this->checkCanvasSize();
+        //$this->checkOffset();
     }
+
+    private function addFloor($key, $item)
+    {
+        $this->floors[] = new Floor(['id' => $key,  'data' => $item, 'name' => $item->name, 'height' => $item->h]);
+    }
+
+
 
     private function parseFloorWalls($floor, $keyFloor)
     {

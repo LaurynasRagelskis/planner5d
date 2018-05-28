@@ -6,9 +6,9 @@ use yii\helpers\Html;
 
 $this->title = 'Project "' . $model->name . '"';
 $this->params['breadcrumbs'][] = $this->title;
-$objFloors = json_encode($plan->floors);
-$objWalls = json_encode($plan->walls);
-//print_r($objWalls); die;
+$arrFloors = json_encode($plan->floors);
+
+//print_r($arrFloors); die;
 ?>
 <div class="site-project">
     <h1><?= Html::encode($this->title) ?> preview</h1>
@@ -20,11 +20,11 @@ $objWalls = json_encode($plan->walls);
     <div class="body-content">
         <div class="row">
             <div class="col-lg-12">
-                <?php foreach($plan->walls as $key => $wall) : ?>
+                <?php /* foreach($plan->walls as $key => $wall) : ?>
                     <code>
                         [Wall <?=$key+1?>] Floor: <?=$wall->floor .' Start: ' . $wall->startPoint[0] .', '.$wall->startPoint[1] .' End: ' . $wall->endPoint[0] .', '.$wall->endPoint[1]?>
                     </code><br />
-                <?php endforeach; ?>
+                <?php endforeach; */ ?>
             </div>
         </div>
 
@@ -35,16 +35,16 @@ $objWalls = json_encode($plan->walls);
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
                 <?php foreach ($plan->floors as $key => $floor) : ?>
-                    <li role="presentation" class="<?= $floor['id'] === $plan->currentFloor ? 'active' : '' ?>"><a href="#floor_<?= $floor['id'] ?>" aria-controls="floor_<?= $floor['id'] ?>" role="tab" data-toggle="tab"><?= $floor['name'] ?></a></li>
+                    <li role="presentation" class="<?= $floor->id === $plan->currentFloor ? 'active' : '' ?>"><a href="#floor_<?= $floor->id ?>" aria-controls="floor_<?= $floor->id ?>" role="tab" data-toggle="tab"><?= $floor->name ?></a></li>
                 <?php endforeach; ?>
             </ul>
 
             <div class="tab-content">
                 <?php foreach ($plan->floors as $key => $floor) : ?>
-                    <div role="tabpanel" class="tab-pane <?= $floor['id'] === $plan->currentFloor ? 'active' : '' ?>" id="floor_<?= $floor['id'] ?>">
+                    <div role="tabpanel" class="tab-pane <?= $floor->id === $plan->currentFloor ? 'active' : '' ?>" id="floor_<?= $floor->id ?>">
                         <div class="canvasPlan" style="width: 100%">
-                            <canvas id="myCanvas_<?= $floor['id'] ?>" width="<?= $plan->canvasSize[0] + $plan->xOffset + 30 ?>" height="<?= $plan->canvasSize[1] + $plan->yOffset + 30 ?>"
-                                    style="border:1px solid #fff; background-color: <?= $plan->data->ground->color ?>">
+                            <canvas id="myCanvas_<?= $floor->id ?>" width="<?= $plan->canvasSize[0] + $plan->xOffset + 30 ?>" height="<?= $plan->canvasSize[1] + $plan->yOffset + 30 ?>"
+                                    style="border:1px solid #fff; background-color: <?= $plan->color ?>">
                             </canvas>
                         </div>
                     </div>
@@ -105,11 +105,29 @@ $objWalls = json_encode($plan->walls);
         ctx.lineTo(endPoint[0] + xOffset, endPoint[1] + yOffset);
     }
 
-    var floors = <?= $objFloors ?>;
-    var walls = <?= $objWalls ?>;
+    arrFloors = <?= $arrFloors ?>;
 
-    for(var i=0; i < floors.length; i++)
-        drawFloorWalls(i, walls, <?= 10 + $plan->xOffset ?>, <?= 10 + $plan->yOffset ?>);
+    for(var i=0; i < arrFloors.length; i++)
+        drawFloor(i, arrFloors[i], <?= 10 + $plan->xOffset ?>, <?= 10 + $plan->yOffset ?>);
 
-    console.log(<?= $objWalls ?>);
+        //drawFloorWalls(i, arrFloors[i], <?= 10 + $plan->xOffset ?>, <?= 10 + $plan->yOffset ?>);
+
+    function drawFloor(floorId, floor, xOffset, yOffset) {
+        var ctx = document.getElementById('myCanvas_' + floorId).getContext('2d');
+        ctx.lineWidth = 10;
+        ctx.lineJoin = 'mitter';
+        ctx.lineCap = 'square';
+        var arrRooms = floor.rooms;
+        for(var i=0; i < arrRooms.length; i++){
+            var arrWalls = arrRooms.walls;
+            ctx.beginPath();
+            for(var j=0; j < arrWalls.length; j++){
+                drawWall(ctx, arrWalls[i].startPoint, arrWalls[i].endPoint, arrWalls[i].color, i, xOffset, yOffset);
+            }
+            ctx.fillStyle = 'red';
+            ctx.fill();
+            ctx.stroke();
+        }
+    }
+
 </script>
