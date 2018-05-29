@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 
 class ProjectFile extends ActiveRecord
 {
+    public $description;
     /**
      * @return string название таблицы, сопоставленной с этим ActiveRecord-классом.
      */
@@ -16,18 +17,11 @@ class ProjectFile extends ActiveRecord
 
     public function rules() {
         return [
-            [['content', 'name'], 'trim'],
+            [['content', 'name', 'description'], 'trim'],
             [['content', 'name'], 'required'],
             [['content'], 'string'],
             [['name'], 'string', 'max' => 45],
-//            [['pvs'],
-//                function($attribute, $params, $validator) {
-//                    if( preg_match('/^https?:\/\/.*(\.jpg|\.JPG|\.PNG|\.png|\.jpeg|\.gif|\.bmp)$/', $this->$attribute) != 1 ) {
-//                        $this->addError($attribute, 'Tai nėra nuoroda į paveiksliuko failą.');
-//                    }
-//                }
-//            ],
-
+            [['description'], 'string', 'max' => 512]
         ];
     }
 

@@ -10,6 +10,7 @@ class Room extends \yii\base\BaseObject
     public $name;
     public $data;
     public $floor;
+    public $color;
 
     public $walls = [];
 
@@ -17,42 +18,21 @@ class Room extends \yii\base\BaseObject
     {
         parent::__construct($config);
         $data = $config['data'];
-        foreach ($data->items as $key => $item) {
-            if ($item->className == 'Wall'){
-//                $this->floors[] = ['id' => $key, 'name' => $item->name, 'height' => $item->h ];
-//                $this->parseFloorWalls($item, $key);
-                $this->addWall($key, $item, [$data->x, $data->y]);
+//        print_r($data->items); die;
+//        print_r($data); die;
+        if(isset($data->items))
+            foreach ($data->items as $key => $item) {
+                if ($item->className == 'Wall'){
+                    $this->addWall($key, $item, [$data->x, $data->y]);
+                }
             }
-        }
+        $this->color = $data->materials->floor->color ? $data->materials->floor->color : null;
         $this->data = null;
-
-//        $this->currentFloor = $data->currentFloor; //$this->floors[0];
-//        $this->checkCanvasSize();
-//        $this->checkOffset();
     }
 
     private function addWall($key, $item, $offset)
     {
-        $this->walls[] = new Wall(['id' => $key, 'data' => $item, 'offset' => $offset]);
+        $this->walls[] = new Wall(['id' => $key, 'data' => $item, 'offset' => $offset, 'hidden' => $item->hidden]);
     }
-
-
-    public function parseWalls() {
-        foreach ($this->data->items as $key => $item) {
-            if ($item->className == 'Wall'){
-                $wallPoints = $this->parseWallPoints($item);
-                $this->walls[] = new Wall([
-                    'parent' => &$this,
-                    'room' => $key, // $this->data->puid,
-                    'width' => $item->w,
-                    'startPoint' => $wallPoints[0],
-                    'endPoint'   => $wallPoints[1],
-                    'color'      => '#00000' //$item->materials->indoor->color
-                ]);
-            }
-        }
-    }
-
-
 
 }

@@ -4,17 +4,22 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use yii\web\UploadedFile;
 
 /**
  * ContactForm is the model behind the contact form.
  */
 class UploadForm extends Model
 {
-    public $name;
-    public $url;
     public $file;
-    public $comment;
+    public $url;
+    public $json;
+    public $name;
+    public $description;
     public $verifyCode;
+
+    public $content;
+    public $active;
 
     /**
      * @return array the validation rules.
@@ -23,12 +28,25 @@ class UploadForm extends Model
     {
         return [
             // name, email, subject and body are required
-            [['name', 'url', 'file', 'comment'], 'string'],
-            // verifyCode needs to be entered correctly
-            ['verifyCode', 'captcha'],
+
+            [['name', 'url', 'json', 'description', 'content'], 'trim'],
+            [['name', 'url', 'json', 'description', 'content'], 'string'],
+            [['file'], 'file'],
+            [['name'], 'string', 'max' => 45],
+            [['description'], 'string', 'max' => 512],
+            [['url'], 'validateJsonUrl'],
+            //['verifyCode', 'captcha'],
+            ['content', 'required'],
+            ['active', 'safe']
         ];
     }
 
+    public function validateJsonUrl($attribute, $params)
+    {
+        if( preg_match('/^https?:\/\/.*(\.p5d|\.json)$/', strtolower($this->$attribute)) != 1 ) {
+            $this->addError($attribute, 'Not matched. Please enter correct URL to remote JSON file with .pd5 or .json extension.');
+        }
+    }
     /**
      * @return array customized attribute labels
      */
@@ -36,9 +54,7 @@ class UploadForm extends Model
     {
         return [
             'name' => 'Project name',
-            'url' => 'Remote file URL',
-            'file' => 'Select file from PC',
-            'comment' => 'Short project description',
+            '$description' => 'Short project description',
             'verifyCode' => 'Verification Code',
         ];
     }

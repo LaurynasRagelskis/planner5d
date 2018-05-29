@@ -12,6 +12,8 @@ use app\models\ContactForm;
 use app\models\ProjectFile;
 use app\models\UploadForm;
 use app\models\Plan;
+use yii\web\UploadedFile;
+
 
 class SiteController extends Controller
 {
@@ -65,23 +67,49 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $formModel = new UploadForm();
-        if ($formModel->load(Yii::$app->request->post()) && $formModel->validate()) {
+
+        if ( $formModel->load( Yii::$app->request->post() )  ) {
             $model = new ProjectFile();
-            $model->setAttributes([
-                'name' => $formModel->name,
-                'content' => $formModel->comment,
+
+            //tikrinu ar i6 failo
+            if( $formModel->file = UploadedFile::getInstance($formModel, 'file') ) {
+                if($formModel->file->extension != 'p5d')
+                    $formModel->addError('file', 'Wrong JSON file extension. ');
+                else {
+                    $formModel->content = file_get_contents($formModel->file->tempName);
+                }
+            }
+            else if ( $formModel->url && $formModel->validate(['url', 'name', 'description'])) {
+                $ch = curl_init( $formModel->url );
+                curl_setopt_array( $ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HTTPHEADER => ['Content-type: application/json']
                 ]);
-            if($model->save()) {
-                Yii::$app->session->setFlash('projectFileUploaded', true);
-                $formModel = new UploadForm();
+                $formModel->content = curl_exec($ch);
+            }
+            else if ( $formModel->json && $formModel->validate(['json']) ) {
+                $formModel->content = $formModel->json;
+            }
+
+            if (!$formModel->hasErrors() && $formModel->validate(['content', 'name', 'description'])) {
+                $objJson = json_decode($formModel->content);
+                $model->setAttributes([
+                    'name' => trim($formModel->name) ? : $objJson->name,
+                    'content' => json_encode($objJson),
+                    'description' => $formModel->description,
+                ]);
+                if($model->validate() && $model->save()) {
+                    Yii::$app->session->setFlash('projectFileUploaded', true);
+                    $formModel = new UploadForm();
+                }
+                else
+                    Yii::$app->session->setFlash('projectFileUploadedError', true);
             }
         }
-
         $model = ProjectFile::find()->orderBy(['id'=>SORT_DESC])->all();
-
         return $this->render('index',[
             'model' => $model,
-            'formModel' => $formModel,
+            'formModel' => $formModel
         ]);
     }
 

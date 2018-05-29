@@ -14,6 +14,7 @@ class Wall extends \yii\base\BaseObject
     public $room;
     public $width = 10;
     public $color = '#000000';
+    public $hidden;
 
     public $startPoint;
     public $endPoint;

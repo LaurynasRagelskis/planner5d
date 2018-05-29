@@ -19,8 +19,7 @@ class Plan extends \yii\base\BaseObject
     public $canvasXdelta = 1000;
     public $canvasYdelta = 1000;
 
-    public $xOffset = 10;
-    public $yOffset = 10;
+    public $offset = 0;
 
     public $floors = []; //issiparsinti visus items if item->className == 'Floor'
 
@@ -37,9 +36,12 @@ class Plan extends \yii\base\BaseObject
         $this->currentFloor = $data->currentFloor; //$this->floors[0];
         $this->width = $data->width;
         $this->height = $data->height;
+        $this->color = $data->ground->color == '#fff' ? 'silver' : $data->ground->color;
         //$this->color = $data->items;
         //$this->checkCanvasSize();
         //$this->checkOffset();
+        $this->normaliseCanvas();
+        $this->normaliseWalls();
     }
 
     private function addFloor($key, $item)
@@ -47,7 +49,37 @@ class Plan extends \yii\base\BaseObject
         $this->floors[] = new Floor(['id' => $key,  'data' => $item, 'name' => $item->name, 'height' => $item->h]);
     }
 
+    private function normaliseCanvas () {
+        $x = $y = $xD = $yD = $this->floors[0]->rooms[0]->walls[0]->startPoint[0];
+        $offset = 0;
+        foreach ($this->floors as $floor) :
+            foreach ($floor->rooms as $room) :
+                foreach ($room->walls as $wall) :
+                    $x = $x > $wall->startPoint[0] ? $wall->startPoint[0] : $x;
+                    $y = $y > $wall->startPoint[1] ? $wall->startPoint[1] : $y;
+                    $xD = $xD < $wall->endPoint[0] ? $wall->endPoint[0] : $xD;
+                    $yD = $yD < $wall->endPoint[1] ? $wall->endPoint[1] : $yD;
+                    $offset = $offset < $wall->width ? $wall->width : $offset;
+                endforeach;
+            endforeach;
+        endforeach;
+        $this->canvasX = $x;
+        $this->canvasY = $y;
+        $this->canvasXdelta = $xD - $x;
+        $this->canvasYdelta = $yD - $y;
+        $this->offset = $offset * 2;
+    }
 
+    private function normaliseWalls () {
+        foreach ($this->floors as $floor) :
+            foreach ($floor->rooms as $room) :
+                foreach ($room->walls as $wall) :
+                    $wall->startPoint = [ $wall->startPoint[0] - $this->canvasX, $wall->startPoint[1] - $this->canvasY ];
+                    $wall->endPoint = [ $wall->endPoint[0] - $this->canvasX, $wall->endPoint[1] - $this->canvasY ];
+                endforeach;
+            endforeach;
+        endforeach;
+    }
 
     private function parseFloorWalls($floor, $keyFloor)
     {
