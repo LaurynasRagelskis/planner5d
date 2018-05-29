@@ -35,6 +35,8 @@ class Plan extends \yii\base\BaseObject
             }
         }
         $this->currentFloor = $data->currentFloor; //$this->floors[0];
+        $this->width = $data->width;
+        $this->height = $data->height;
         //$this->color = $data->items;
         //$this->checkCanvasSize();
         //$this->checkOffset();

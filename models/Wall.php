@@ -8,6 +8,7 @@ class Wall extends \yii\base\BaseObject
     //data
     public $id;
     public $data;
+    public $offset;
     public $parent;
     public $floor;
     public $room;
@@ -26,13 +27,15 @@ class Wall extends \yii\base\BaseObject
                 $this->addPoint($key,  $item);
             }
         }
+        $this->width = $this->data->w;
         $this->data = null;
     }
     private function addPoint($key, $item)
     {
+        $point = [$item->x + $this->offset[0], $item->y + $this->offset[1]];
         if ($key === 0)
-            $this->startPoint = [$item->x, $item->y];
+            $this->startPoint = $point;
         else
-            $this->endPoint = [$item->x, $item->y];
+            $this->endPoint = $point;
     }
 }

@@ -21,7 +21,7 @@ class Room extends \yii\base\BaseObject
             if ($item->className == 'Wall'){
 //                $this->floors[] = ['id' => $key, 'name' => $item->name, 'height' => $item->h ];
 //                $this->parseFloorWalls($item, $key);
-                $this->addWall($key, $item);
+                $this->addWall($key, $item, [$data->x, $data->y]);
             }
         }
         $this->data = null;
@@ -31,9 +31,9 @@ class Room extends \yii\base\BaseObject
 //        $this->checkOffset();
     }
 
-    private function addWall($key, $item)
+    private function addWall($key, $item, $offset)
     {
-        $this->walls[] = new Wall(['id' => $key, 'data' => $item]);
+        $this->walls[] = new Wall(['id' => $key, 'data' => $item, 'offset' => $offset]);
     }
 
 
