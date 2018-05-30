@@ -2,22 +2,22 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
     </a>
-    <h1 align="center">Yii 2 Basic Project Template</h1>
+    <h1 align="center">Planner5D Test on Yii 2 Basic Project Template</h1>
     <br>
 </p>
+
+Testing environment is running on temporary [planner5d.kob.lt](http://planner5d.kob.lt/) server.
 
 Yii 2 Basic Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
 rapidly creating small projects.
 
-The template contains the basic features including user login/logout and a contact page.
-It includes all commonly used configurations that would allow you to focus on adding new
-features to your application.
+The template contains the basic features including user login/logout page.
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/yiisoft/yii2-app-basic.svg)](https://packagist.org/packages/yiisoft/yii2-app-basic)
 [![Total Downloads](https://img.shields.io/packagist/dt/yiisoft/yii2-app-basic.svg)](https://packagist.org/packages/yiisoft/yii2-app-basic)
 [![Build Status](https://travis-ci.org/yiisoft/yii2-app-basic.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-app-basic)
 
-DIRECTORY STRUCTURE
+BASIC YII 2 DIRECTORY STRUCTURE
 -------------------
 
       assets/             contains assets definition
@@ -32,6 +32,35 @@ DIRECTORY STRUCTURE
       views/              contains view files for the Web application
       web/                contains the entry script and Web resources
 
+
+ADDED OR REFACTORED FOR PLANNER5D TEST TASK
+----------------------------------
+
+      controllers/          contains Web controller classes
+       |-SiteController.php main controllers for uploading and project drawing actions
+      
+      models/               contains model classes
+       |-FileForm.php       class for manipulation with uploaded file
+       |-Floor.php          class for Floor objects
+       |-Plan.php           class for Plan objects - main model class for project drawing 
+       |-ProjectFile.php    class for working with project files data, saved in database
+       |-Room.php           class for Room objects
+       |-UploadForm.php     class for new project data uploading  
+       |-Wall.php           class for Wall objects
+       
+      views/              
+       |-layouts/
+       |  |-main.php        layout wrapped content pages 
+       |
+       |-site/
+          |-about.php       long and detailed description about test task
+          |-index.php       home page with new project file uploading form and project list
+          |-project.php     contains project's plans rendering canvas
+       
+      web/                
+       |-files/             contains JSON files for uploading by URL
+       |-images/            contains pattern images for rendering
+       
 
 
 REQUIREMENTS

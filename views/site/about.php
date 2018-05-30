@@ -90,6 +90,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <p>Būtinų duomenų struktūros patikrinimas (Floor, Room, Plan, Wall objektai)</p>
             <p>Apsauga nuo SQL injection'ų.</p>
             <p>URL'o normalizavimas, įkeliant pagal nuorodą - standartinis nesaugių simbolių enkodinimas neuniversalus.</p>
+            <p>Reikėtų iškelti formą į atskirą subview'są, kad būtų aiškesnė kodo stuktūra.</p>
             <hr />
             <p><b>Failų įrašymui</b></p>
             <p>Optimizuojant modelį, į DB reikėtų įrašyti pilną JSON objekto turinį (kaip dabar), plius optimizuotą,

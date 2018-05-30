@@ -7,7 +7,7 @@ use yii\db\ActiveRecord;
 class ProjectFile extends ActiveRecord
 {
     /**
-     * @return string название таблицы, сопоставленной с этим ActiveRecord-классом.
+     * @return string title of table, referenced with this ActiveRecord class
      */
     public static function tableName()
     {
