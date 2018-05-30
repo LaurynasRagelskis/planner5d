@@ -8,12 +8,11 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
-use app\models\ContactForm;
 use app\models\ProjectFile;
 use app\models\UploadForm;
 use app\models\Plan;
 use yii\web\UploadedFile;
-
+use yii\data\Pagination;
 
 class SiteController extends Controller
 {
@@ -71,61 +70,101 @@ class SiteController extends Controller
         if ( $formModel->load( Yii::$app->request->post() )  ) {
             $model = new ProjectFile();
 
-            //tikrinu ar i6 failo
+            //check form JSON data upload source
             if( $formModel->file = UploadedFile::getInstance($formModel, 'file') ) {
                 if($formModel->file->extension != 'p5d')
                     $formModel->addError('file', 'Wrong JSON file extension. ');
                 else {
                     $formModel->content = file_get_contents($formModel->file->tempName);
                 }
-            }
-            else if ( $formModel->url && $formModel->validate(['url', 'name', 'description'])) {
-                $ch = curl_init( $formModel->url );
-                curl_setopt_array( $ch, [
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_HTTPHEADER => ['Content-type: application/json']
-                ]);
-                $formModel->content = curl_exec($ch);
-            }
-            else if ( $formModel->json && $formModel->validate(['json']) ) {
+            } else if ( $formModel->url && $formModel->validate(['url', 'name', 'description'])) {
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, str_replace(' ', '%20', $formModel->url) );
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-type: application/json']);
+
+                if(curl_exec($ch) === FALSE) {
+                    $formModel->addError('url', curl_error($ch) );
+                } else {
+                    $formModel->content = curl_exec($ch);
+                }
+                curl_close($ch);
+
+            } else if ( $formModel->json && $formModel->validate(['json']) ) {
                 $formModel->content = $formModel->json;
             }
 
             if (!$formModel->hasErrors() && $formModel->validate(['content', 'name', 'description'])) {
                 $objJson = json_decode($formModel->content);
+                $plan = new Plan(['data' => $objJson->data]);
                 $model->setAttributes([
                     'name' => trim($formModel->name) ? : $objJson->name,
                     'content' => json_encode($objJson),
+                    'plan' => json_encode($plan),
                     'description' => $formModel->description,
                 ]);
                 if($model->validate() && $model->save()) {
-                    Yii::$app->session->setFlash('projectFileUploaded', true);
+                    Yii::$app->session->setFlash('alert', ['type' => 'success', 'msg' => 'Thank you for new project! Now you can preview project in 2D.']);
                     $formModel = new UploadForm();
+                } else {
+                    Yii::$app->session->setFlash('alert', ['type' => 'danger', 'msg' => 'Sorry, something went wrong. Refresh page and try again.']);
                 }
-                else
-                    Yii::$app->session->setFlash('projectFileUploadedError', true);
             }
         }
-        $model = ProjectFile::find()->orderBy(['id'=>SORT_DESC])->all();
+
+        $query = ProjectFile::find(['id', 'name', 'timestamp', 'description']);
+
+        $countQuery = clone $query;
+        $pages = new Pagination(['totalCount' => $countQuery->count()]);
+        $pages->setPageSize(5);
+        $model = $query->offset($pages->offset)
+            ->orderBy(['id'=>SORT_DESC])
+            ->limit($pages->limit)
+            ->all();
+
         return $this->render('index',[
             'model' => $model,
-            'formModel' => $formModel
+            'formModel' => $formModel,
+            'pages' => $pages
         ]);
     }
 
+    /**
+     * Displays page with rendered plan.
+     *
+     * @param integer $id
+     * @return string
+     */
     public function actionProject($id)
     {
-        //echo $id;
-        //die(' stopas');
-        $model = ProjectFile::findOne(['id' => $id]);
-        $project = json_decode($model->content);
-        $plan = new Plan(['data' => $project->data]);
+        $model = ProjectFile::find()
+            ->where(['id' => $id])
+            ->select(['id', 'name', 'plan', 'timestamp', 'description', 'content'])
+            ->one();
 
+        $model->plan = json_decode($model->plan);
         return $this->render('project', [
-            'model' => $model,
-            'project' => $project,
-            'plan' => $plan,
+            'model' => $model
         ]);
+    }
+
+    /**
+     * Delete project file.
+     *
+     * @param integer $id
+     * @return Response|string
+     * @throws
+     */
+    public function actionDelete($id)
+    {
+        if(Yii::$app->user->id == 100 && $model = ProjectFile::findOne(['id' => $id])) {
+            if($model->delete())
+                Yii::$app->session->setFlash('alert', ['type' => 'warning', 'msg' => 'You deleted project file ID #'.$id]);
+            else
+                Yii::$app->session->setFlash('alert', ['type' => 'dange', 'msg' => 'Error! File ID #'.$id . ' not deleted.']);
+        }
+        return $this->goHome();
     }
 
     /**
@@ -160,24 +199,6 @@ class SiteController extends Controller
         Yii::$app->user->logout();
 
         return $this->goHome();
-    }
-
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
     }
 
     /**

@@ -19,7 +19,6 @@ class UploadForm extends Model
     public $verifyCode;
 
     public $content;
-    public $active;
 
     /**
      * @return array the validation rules.
@@ -35,9 +34,8 @@ class UploadForm extends Model
             [['name'], 'string', 'max' => 45],
             [['description'], 'string', 'max' => 512],
             [['url'], 'validateJsonUrl'],
-            //['verifyCode', 'captcha'],
-            ['content', 'required'],
-            ['active', 'safe']
+            ['verifyCode', 'captcha'],
+            ['content', 'required']
         ];
     }
 

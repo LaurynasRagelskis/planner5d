@@ -6,7 +6,6 @@ use yii\db\ActiveRecord;
 
 class ProjectFile extends ActiveRecord
 {
-    public $description;
     /**
      * @return string название таблицы, сопоставленной с этим ActiveRecord-классом.
      */
@@ -17,46 +16,11 @@ class ProjectFile extends ActiveRecord
 
     public function rules() {
         return [
-            [['content', 'name', 'description'], 'trim'],
-            [['content', 'name'], 'required'],
-            [['content'], 'string'],
+            [['content', 'name', 'description', 'plan'], 'trim'],
+            [['content', 'name', 'plan'], 'required'],
+            [['content', 'plan'], 'string'],
             [['name'], 'string', 'max' => 45],
             [['description'], 'string', 'max' => 512]
         ];
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public function setFileContent($json)
-    {
-        $this->content = $json;
-        return null;
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public function setFileName($name = null)
-    {
-        $this->name = $name ? : $this->parseNameFromContent();
-    }
-
-    private function parseNameFromContent() {
-        return $this->content;
-    }
-
-    public function printWalls() {
-        return $this->content;
-    }
-
-    public function printFloor() {
-        return $this->content;
     }
 }

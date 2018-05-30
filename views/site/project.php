@@ -6,36 +6,35 @@ use yii\helpers\Html;
 
 $this->title = 'Project "' . $model->name . '"';
 $this->params['breadcrumbs'][] = $this->title;
-$arrFloors = json_encode($plan->floors);
-$canvasSize = [$plan->canvasXdelta + $plan->offset * 2, $plan->canvasYdelta + $plan->offset * 2];
-//$canvasBgColor = $plan->ground->color ? : 'silver';
-//echo $plan->width; die;
-//print_r($plan->floors[0]->rooms[0]->walls); die;
+$arrFloors = json_encode($model->plan->floors);
+$canvasSize = [$model->plan->canvasXdelta + $model->plan->offset * 2, $model->plan->canvasYdelta + $model->plan->offset * 2];
 ?>
 <div class="site-project">
     <h1><?= Html::encode($this->title) ?> preview</h1>
 
     <p>
-        This is 2D plan of project. At this moment rendered are only walls and floors.
+        This is 2D plan of project. At this moment rendered are only walls and floors.<br />
+        <b>Id:</b> <?= $model->id ?>, <b>Updated: </b> <?= $model->timestamp ?>
+        <?= $model->description ? '<br /><b>Short description:</b> '.$model->description : '' ?>
     </p>
 
     <div class="body-content">
         <div>
             <ul class="nav nav-tabs" role="tablist">
-                <?php foreach ($plan->floors as $key => $floor) : ?>
-                    <li role="presentation" class="<?= $floor->id === $plan->currentFloor ? 'active' : '' ?>"><a href="#floor_<?= $floor->id ?>" aria-controls="floor_<?= $floor->id ?>" role="tab" data-toggle="tab"><?= $floor->name ?></a></li>
+                <?php foreach ($model->plan->floors as $key => $floor) : ?>
+                    <li role="presentation" class="<?= $floor->id === $model->plan->currentFloor ? 'active' : '' ?>"><a href="#floor_<?= $floor->id ?>" aria-controls="floor_<?= $floor->id ?>" role="tab" data-toggle="tab"><?= $floor->name ?></a></li>
                 <?php endforeach; ?>
             </ul>
 
             <div class="tab-content">
-                <?php foreach ($plan->floors as $key => $floor) : ?>
-                    <div role="tabpanel" class="tab-pane <?= $floor->id === $plan->currentFloor ? 'active' : '' ?>" id="floor_<?= $floor->id ?>">
+                <?php foreach ($model->plan->floors as $key => $floor) : ?>
+                    <div role="tabpanel" class="tab-pane <?= $floor->id === $model->plan->currentFloor ? 'active' : '' ?>" id="floor_<?= $floor->id ?>">
                         <div class="canvasPlan" style="width: 100%; position:relative">
                             <canvas id="myCanvas_<?= $floor->id ?>" width="<?= $canvasSize[0] ?>" height="<?= $canvasSize[1] ?>"
                                     style="border:1px solid #fff; z-index: 100; position: absolute;">
                             </canvas>
                             <canvas id="floorCanvas_<?= $floor->id ?>" width="<?= $canvasSize[0] ?>" height="<?= $canvasSize[1] ?>"
-                                    style="border:1px solid #fff; background-color: <?= $plan->color ?>; z-index: 10; position:relative">
+                                    style="border:1px solid #fff; background-color: <?= $model->plan->color ?>; z-index: 10; position:relative">
                             </canvas>
                         </div>
                     </div>
@@ -43,7 +42,7 @@ $canvasSize = [$plan->canvasXdelta + $plan->offset * 2, $plan->canvasYdelta + $p
             </div>
         </div>
         <div class="row">
-            <?php foreach($plan->floors as $key => $floor) : ?>
+            <?php foreach($model->plan->floors as $key => $floor) : ?>
             <div class="col-md-4">
                 <h3>Floor [id: <?= $floor->id ?>, name: <?= $floor->name ?>]</h3>
                 <?php foreach($floor->rooms as $key => $room) : ?>
@@ -59,9 +58,8 @@ $canvasSize = [$plan->canvasXdelta + $plan->offset * 2, $plan->canvasYdelta + $p
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <pre><?php print_r($plan->canvasSize) ?></pre>
-                <pre><?php //print_r($plan->floors) ?></pre>
-                <pre><?php print_r($plan->data) ?></pre>
+                <h3>Project file's Plan object 'as is'</h3>
+                <pre><?php print_r($model->plan) ?></pre>
             </div>
         </div>
 
@@ -72,7 +70,7 @@ $canvasSize = [$plan->canvasXdelta + $plan->offset * 2, $plan->canvasYdelta + $p
     arrFloors = <?= $arrFloors ?>;
 
     for(var i=0; i < arrFloors.length; i++)
-        drawFloor(i, arrFloors[i], <?= $plan->offset ?>);
+        drawFloor(i, arrFloors[i], <?= $model->plan->offset ?>);
 
     function drawFloor(floorId, floor, offset) {
         var arrRooms = floor.rooms;
@@ -84,7 +82,6 @@ $canvasSize = [$plan->canvasXdelta + $plan->offset * 2, $plan->canvasYdelta + $p
                 ctx.translate(offset, offset);
                 ctxF.translate(offset, offset);
             }
-
 
             ctx.lineWidth = 10;
             ctx.lineJoin = 'mitter';
@@ -135,5 +132,4 @@ $canvasSize = [$plan->canvasXdelta + $plan->offset * 2, $plan->canvasYdelta + $p
             ctx.closePath();
         }
     }
-
 </script>
