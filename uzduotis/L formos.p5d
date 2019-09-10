@@ -1,0 +1,1 @@
+{"hash":"noAuthProject","readOnly":0,"name":"Naujas projektas","s":0,"data":{"className":"Project","version":2,"width":8000,"height":8000,"ss":[],"sscounter":0,"s":0,"currentFloor":0,"autoinc":182,"ground":{"texture":"bg_1_fill.png","color":"#fff"},"v":7,"items":[{"className":"Floor","name":"Pirmas aukštas","h":275,"puid":"p1","items":[]}]}}

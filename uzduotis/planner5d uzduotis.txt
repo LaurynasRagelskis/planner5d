@@ -1,0 +1,6 @@
+﻿#1 Įkelti p5d json failą arba įvesti web nuorodą į tą failą
+#2 Įvestą failą išsaugotų į duombazę (sakykime SQLite)
+#3 Visus įkeltus failus išvestų sąraše ir prie kiekvieno failo būtų po mygtuką "Preview"
+#4 Paspaudus "Preview" mygtuką atsidarytu atskiras langas kuriame nupieštu visų p5d faile esančių kambarių sienas ir grindis (2D, grindys gali būti vienspalvės, galima su Canvas)
+
+Nuorodų į failus galima rasti čia: https://planner5d.com/gallery/floorplans/
